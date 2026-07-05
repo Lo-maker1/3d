@@ -78,16 +78,29 @@ const CATEGORIES = [
   { key: "sacs", label: "Sacs", products: ["sac_dos", "sac_bandouliere", "sac_sport"] },
 ];
 
-const PRODUCT_CATEGORY = {};
-CATEGORIES.forEach((cat) => cat.products.forEach((p) => { PRODUCT_CATEGORY[p] = cat.key; }));
-
-// Recale et redimensionne le produit pour qu'il coïncide avec la zone du
-// corps concernée sur le mannequin (approximatif — un calibrage fin par
-// produit pourra affiner ça plus tard).
+// Recale et redimensionne chaque produit pour qu'il coïncide précisément
+// avec la zone du corps concernée sur le mannequin (épaules, taille,
+// hanches, chevilles, tête, poignet...). Valeurs calculées à partir des
+// repères anatomiques du mannequin (buildMannequin) et de l'étendue
+// verticale réelle de chaque silhouette (voir SHAPES).
 const POSE_TRANSFORM = {
-  hauts: { y: 0.05, scale: 1 },
-  bas: { y: -1.2, scale: 0.6 },
-  pieds: { y: -2.05, scale: 0.42 },
+  tshirt: { y: 0.285, scale: 0.572 },
+  chemise: { y: 0.31, scale: 0.546 },
+  jacket: { y: 0.25, scale: 0.648 },
+  sweat: { y: 0.225, scale: 0.596 },
+  pull: { y: 0.275, scale: 0.585 },
+  jean: { y: -1.0, scale: 0.769 },
+  jogging: { y: -0.95, scale: 0.745 },
+  short: { y: -0.425, scale: 0.708 },
+  jupe: { y: -0.5, scale: 0.417 },
+  chaussure: { y: -2.025, scale: 0.5 },
+  chaussette: { y: -1.825, scale: 0.31 },
+  casquette: { y: 1.665, scale: 0.35 },
+  bracelet: { x: 1.07, y: 0.02, z: 0.03, scale: 0.12 },
+  montre: { x: 1.07, y: 0.02, z: 0.03, scale: 0.111 },
+  sac_dos: { x: 1.5, y: 0.3, scale: 0.8 },
+  sac_bandouliere: { x: 1.4, y: 0.0, scale: 0.75 },
+  sac_sport: { x: 1.6, y: -0.5, scale: 0.7 },
 };
 
 const PRODUCT_LABELS = {
@@ -492,9 +505,9 @@ export default function BrandStudio3D() {
     }
 
     const garment = buildProductGroup(product, color);
-    const t = showMannequin ? POSE_TRANSFORM[PRODUCT_CATEGORY[product]] : null;
+    const t = showMannequin ? POSE_TRANSFORM[product] : null;
     if (t) {
-      garment.position.y = t.y;
+      garment.position.set(t.x || 0, t.y, t.z || 0);
       garment.scale.setScalar(t.scale);
     }
 
@@ -741,8 +754,9 @@ export default function BrandStudio3D() {
                       <SliderRow label="Corpulence" hint="mince → large" value={corpulence} onChange={setCorpulence} />
                       <SliderRow label="Musculature" hint="mince → musclé" value={muscle} onChange={setMuscle} />
                       <p style={{ fontSize: 11, color: "#8B8B90", margin: 0, lineHeight: 1.4 }}>
-                        Aperçu approximatif pour tester une coupe sur différents gabarits — l'alignement
-                        précis par produit sera affiné dans une prochaine version.
+                        Chaque produit est calé sur ses propres repères anatomiques (épaules, taille,
+                        hanches, chevilles, tête, poignet). Les sacs sont posés à côté du mannequin
+                        plutôt que portés, pour rester lisibles.
                       </p>
                     </>
                   )}
